@@ -67,6 +67,11 @@ TcpSocketState::GetTypeId()
                             "Trace ECN state change of socket",
                             MakeTraceSourceAccessor(&TcpSocketState::m_ecnState),
                             "ns3::TracedValueCallback::EcnState")
+            .AddTraceSource("EnableAbe",
+                            "Enable ABE for ECN"
+                            BooleanValue(false),
+                            MakeBooleanAccessor(&TcpSocketState::m_enableAbe),
+                            MakeBooleanChecker())
             .AddTraceSource("HighestSequence",
                             "Highest sequence number received from peer",
                             MakeTraceSourceAccessor(&TcpSocketState::m_highTxMark),
@@ -116,6 +121,7 @@ TcpSocketState::TcpSocketState(const TcpSocketState& other)
       m_srtt(other.m_srtt),
       m_lastRtt(other.m_lastRtt),
       m_ecnMode(other.m_ecnMode),
+      m_abeState(other.m_enableAbe),
       m_useEcn(other.m_useEcn),
       m_ectCodePoint(other.m_ectCodePoint),
       m_lastAckedSackedBytes(other.m_lastAckedSackedBytes)

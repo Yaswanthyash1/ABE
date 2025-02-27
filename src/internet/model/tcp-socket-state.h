@@ -146,6 +146,8 @@ class TcpSocketState : public Object
                      //!< set in TCP header. This state is used for tracing.
     };
 
+    bool m_enableAbe{false};
+
     /**
      * @brief Literal names of TCP states for use in log messages
      */
