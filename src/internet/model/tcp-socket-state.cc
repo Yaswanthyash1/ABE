@@ -43,6 +43,11 @@ TcpSocketState::GetTypeId()
                           BooleanValue(false),
                           MakeBooleanAccessor(&TcpSocketState::m_paceInitialWindow),
                           MakeBooleanChecker())
+            .AddAttribute("EnableAbe",
+                          "Enable ABE for ECN",
+                          BooleanValue(false),
+                          MakeBooleanAccessor(&TcpSocketState::m_enableAbe),
+                          MakeBooleanChecker())
             .AddTraceSource("PacingRate",
                             "The current TCP pacing rate",
                             MakeTraceSourceAccessor(&TcpSocketState::m_pacingRate),
@@ -67,11 +72,6 @@ TcpSocketState::GetTypeId()
                             "Trace ECN state change of socket",
                             MakeTraceSourceAccessor(&TcpSocketState::m_ecnState),
                             "ns3::TracedValueCallback::EcnState")
-            .AddTraceSource("EnableAbe",
-                            "Enable ABE for ECN"
-                            BooleanValue(false),
-                            MakeBooleanAccessor(&TcpSocketState::m_enableAbe),
-                            MakeBooleanChecker())
             .AddTraceSource("HighestSequence",
                             "Highest sequence number received from peer",
                             MakeTraceSourceAccessor(&TcpSocketState::m_highTxMark),
