@@ -113,10 +113,11 @@ Finished executing the following commands:
 
 ---
 
-## **References**
-1. **RFC 8511**: [Alternative Backoff with ECN (ABE)](https://datatracker.ietf.org/doc/html/rfc8511)
-2. **NS-3 Documentation**: [NS-3 TCP Documentation](https://www.nsnam.org/docs/release/3.36/doxygen/group__tcp.html)
-3. **CUBIC Congestion Control**: [CUBIC Paper](https://dl.acm.org/doi/10.1145/1400097.1400105)
+## References
+1. **[RFC 3168: The Addition of Explicit Congestion Notification (ECN) to IP](https://datatracker.ietf.org/doc/html/rfc3168)**
+2. **[RFC 8511: Alternative Backoff with ECN (ABE)](https://datatracker.ietf.org/doc/html/rfc8511)**
+3. **[NS-3 TCP Documentation](https://www.nsnam.org/docs/release/3.36/doxygen/group__tcp.html)**
+4. **[CUBIC Congestion Control](https://dl.acm.org/doi/10.1145/1400097.1400105)**
 
 ---
 
