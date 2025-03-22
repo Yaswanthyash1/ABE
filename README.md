@@ -29,3 +29,20 @@ Run the following commands after logging in through SSH:
 ```sh
 sudo apt-get update
 sudo apt-get -y install git
+```
+
+### Building and Setting Up NS-3
+
+To set up and build NS-3 with ABE support, follow these steps:
+
+```sh
+./ns-3 clean
+./ns-3 configure --enable-examples --enable-tests
+./ns-3 build
+```
+
+These commands will:
+
+- **Clean** any previous build files to ensure a fresh compilation.
+- **Configure** NS-3 with support for examples and tests.
+- **Build** the NS-3 simulator with the necessary configurations.
