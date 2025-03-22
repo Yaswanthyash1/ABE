@@ -89,6 +89,61 @@ class TcpCubicAbeTest : public TestCase
 };
 
 /**
+ * Test case for TCP Linux Reno with ABE
+ */
+class TcpLinuxRenoAbeTest : public TestCase
+{
+    private:
+        uint32_t testCase;
+        uint32_t m_initialCwnd;
+        uint32_t m_expectedCwnd;
+        uint32_t m_bytesInFlight;
+        
+    public:
+        TcpLinuxRenoAbeTest(
+            uint32_t testCase,
+            uint32_t initialCwnd,
+            uint32_t expectedCwnd,
+            uint32_t bytesInFlight,
+            const std::string& desc) : 
+                TestCase(desc),
+                testCase(testCase),
+                m_initialCwnd(initialCwnd),
+                m_expectedCwnd(expectedCwnd),
+                m_bytesInFlight(bytesInFlight)
+            {}
+
+        void DoRun() override
+        {
+            if(testCase==1){
+                Ptr<TcpLinuxReno> cubic = CreateObject<TcpLinuxReno>();
+                Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+                state->m_enableAbe=true;
+                state->m_ecnState=TcpSocketState::ECN_ECE_RCVD;
+                state->m_cWnd=m_initialCwnd;
+                state->m_bytesInFlight=m_bytesInFlight;
+                //update cwnd
+                state->m_cWnd=cubic->GetSsThresh(state, m_bytesInFlight);
+                NS_TEST_EXPECT_MSG_EQ(state->m_cWnd, m_expectedCwnd, "RENO Congestion Control with ABE should apply BetaEcn correctly");
+            }
+            else if(testCase==0)
+            {
+                Ptr<TcpLinuxReno> cubic = CreateObject<TcpLinuxReno>();
+                Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+                state->m_ecnState=TcpSocketState::ECN_ECE_RCVD;
+                state->m_cWnd=m_initialCwnd;
+                state->m_bytesInFlight=m_bytesInFlight;
+                //update cwnd
+                state->m_cWnd=cubic->GetSsThresh(state, m_bytesInFlight);
+                NS_TEST_EXPECT_MSG_EQ(state->m_cWnd, m_expectedCwnd, "RENO congestion control should apply Beta correctly");
+            }
+            else{
+                NS_TEST_EXPECT_MSG_EQ(0, 1, "Invalid test case");
+            }
+        }
+};
+
+/**
  * Test suite for ABE
  */
 class TcpAbeTestSuite : public TestSuite
@@ -112,6 +167,20 @@ public:
             850,
             100,
             "Test CUBIC ABE with BetaEcn"),
+            TestCase::Duration::QUICK);
+        AddTestCase(new TcpLinuxRenoAbeTest(
+            0,
+            1000,
+            500,
+            100,
+            "Test Linux Reno without ABE"),
+            TestCase::Duration::QUICK);
+        AddTestCase(new TcpLinuxRenoAbeTest(
+            1,
+            1000,
+            700,
+            100,
+            "Test Linux Reno ABE with BetaEcn"),
             TestCase::Duration::QUICK);
     }
 };
