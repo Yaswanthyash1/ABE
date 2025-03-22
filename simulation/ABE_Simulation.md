@@ -13,7 +13,6 @@ This NS-3 simulation demonstrates the behavior of Explicit Congestion Notificati
 6. [Output Files](#output-files)
 7. [Key Components](#key-components)
 8. [Troubleshooting](#troubleshooting)
-9. [License](#license)
 
 ---
 
@@ -146,5 +145,3 @@ The simulation generates the following output files in a timestamped directory u
    - Rebuild NS-3 if necessary.
 
 ---
-
-## License
