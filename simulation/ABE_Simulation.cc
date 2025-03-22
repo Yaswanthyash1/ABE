@@ -10,6 +10,8 @@
 * - Flow monitoring for throughput and queue size.
 * - Congestion window tracing.
 * - PCAP file generation for debugging.
+
+* Note: Make sure to add this test file in sratch folder 
 */
 
 #include "ns3/applications-module.h"
