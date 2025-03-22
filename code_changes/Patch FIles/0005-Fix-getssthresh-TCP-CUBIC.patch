@@ -1,0 +1,36 @@
+From 7596ffcaff461c11181aae5bd05845d0c527cc25 Mon Sep 17 00:00:00 2001
+From: Immortus1 <yashas80dj@gmail.com>
+Date: Tue, 11 Mar 2025 22:48:06 +0530
+Subject: [PATCH 5/6] Fix: getssthresh TCP CUBIC
+
+---
+ src/internet/model/tcp-cubic.cc | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/internet/model/tcp-cubic.cc b/src/internet/model/tcp-cubic.cc
+index fcb445509..5c607060d 100644
+--- a/src/internet/model/tcp-cubic.cc
++++ b/src/internet/model/tcp-cubic.cc
+@@ -475,14 +475,14 @@ TcpCubic::GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight)
+     m_epochStart = Time::Min(); // end of epoch
+     
+     uint32_t ssThresh;
+-    /* Formula taken from the Linux kernel */
+-    if(!tcb->m_enableAbe)
++    
++    if(tcb->m_enableAbe && tcb->m_ecnState == TcpSocketState::ECN_ECE_RCVD)
+     {
+-        ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_beta), 2U) * tcb->m_segmentSize;
++        ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_betaEcn), 2U) * tcb->m_segmentSize;//According to RFC 8511 (ABE)
+     }
+     else
+-    {
+-        ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_betaEcn), 2U) * tcb->m_segmentSize;
++    {   /* Formula taken from the Linux kernel */
++        ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_beta), 2U) * tcb->m_segmentSize;
+     }
+     
+     NS_LOG_DEBUG("SsThresh = " << ssThresh);
+-- 
+2.34.1
+

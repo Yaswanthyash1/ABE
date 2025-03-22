@@ -1,0 +1,64 @@
+From a7584e5fbb35b45677648bb5467e18a30011f585 Mon Sep 17 00:00:00 2001
+From: V_S_K <vishruthkumar138@gmail.com>
+Date: Thu, 13 Mar 2025 12:19:22 +0530
+Subject: [PATCH] TCP-Linux-Reno : Added ABE to getSsthresh_Update
+
+---
+ src/internet/model/tcp-linux-reno.cc | 19 +++++++++++++++++--
+ src/internet/model/tcp-linux-reno.h  |  3 +++
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/src/internet/model/tcp-linux-reno.cc b/src/internet/model/tcp-linux-reno.cc
+index e805d389c..98237f355 100644
+--- a/src/internet/model/tcp-linux-reno.cc
++++ b/src/internet/model/tcp-linux-reno.cc
+@@ -25,7 +25,17 @@ TcpLinuxReno::GetTypeId()
+     static TypeId tid = TypeId("ns3::TcpLinuxReno")
+                             .SetParent<TcpCongestionOps>()
+                             .SetGroupName("Internet")
+-                            .AddConstructor<TcpLinuxReno>();
++                            .AddConstructor<TcpLinuxReno>()
++                            .AddAttribute("Beta",
++                                "Beta for multiplicative decrease",
++                                DoubleValue(0.5),
++                                MakeDoubleAccessor(&TcpLinuxReno::m_beta),
++                                MakeDoubleChecker<double>(0.0))
++                            .AddAttribute("BetaEcn",
++                                "Beta for multiplicative decrease for ABE",
++                                DoubleValue(0.7),//According to RFC 8511 (ABE) 
++                                MakeDoubleAccessor(&TcpLinuxReno::m_betaEcn),
++                                MakeDoubleChecker<double>(0.0));
+     return tid;
+ }
+ 
+@@ -137,7 +147,12 @@ TcpLinuxReno::GetSsThresh(Ptr<const TcpSocketState> state, uint32_t bytesInFligh
+     NS_LOG_FUNCTION(this << state << bytesInFlight);
+ 
+     // In Linux, it is written as:  return max(tp->snd_cwnd >> 1U, 2U);
+-    return std::max<uint32_t>(2 * state->m_segmentSize, state->m_cWnd / 2);
++    if(state->m_enableAbe && state->m_ecnState == TcpSocketState::ECN_ECE_RCVD)
++     {
++         return std::max<uint32_t>(2*state->m_segmentSize, state->m_cWnd * m_betaEcn);//According to RFC 8511 (ABE)
++     }
++
++     return std::max<uint32_t>(2 * state->m_segmentSize, state->m_cWnd * m_beta);
+ }
+ 
+ Ptr<TcpCongestionOps>
+diff --git a/src/internet/model/tcp-linux-reno.h b/src/internet/model/tcp-linux-reno.h
+index cb8c2069b..88853eec4 100644
+--- a/src/internet/model/tcp-linux-reno.h
++++ b/src/internet/model/tcp-linux-reno.h
+@@ -84,6 +84,9 @@ class TcpLinuxReno : public TcpCongestionOps
+     // tcp_reno_cong_avoid()
+     bool m_suppressIncreaseIfCwndLimited{
+         true}; //!< Suppress window increase if TCP is not cwnd limited
++    double m_beta;
++    double m_betaEcn;
++    
+ };
+ 
+ } // namespace ns3
+-- 
+2.34.1
+

@@ -1,0 +1,50 @@
+From 7ba8b354caec493c0dd4a91345a027955a7391cd Mon Sep 17 00:00:00 2001
+From: Nagabhushanam2005 <thechosentwins2005@gmail.com>
+Date: Thu, 27 Feb 2025 22:11:36 +0530
+Subject: [PATCH 1/6] [TCP]: added bool value to enable ABE
+
+---
+ src/internet/model/tcp-socket-state.cc | 6 ++++++
+ src/internet/model/tcp-socket-state.h  | 2 ++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/internet/model/tcp-socket-state.cc b/src/internet/model/tcp-socket-state.cc
+index 245783e7c..d628698ca 100644
+--- a/src/internet/model/tcp-socket-state.cc
++++ b/src/internet/model/tcp-socket-state.cc
+@@ -67,6 +67,11 @@ TcpSocketState::GetTypeId()
+                             "Trace ECN state change of socket",
+                             MakeTraceSourceAccessor(&TcpSocketState::m_ecnState),
+                             "ns3::TracedValueCallback::EcnState")
++            .AddTraceSource("EnableAbe",
++                            "Enable ABE for ECN"
++                            BooleanValue(false),
++                            MakeBooleanAccessor(&TcpSocketState::m_enableAbe),
++                            MakeBooleanChecker())
+             .AddTraceSource("HighestSequence",
+                             "Highest sequence number received from peer",
+                             MakeTraceSourceAccessor(&TcpSocketState::m_highTxMark),
+@@ -116,6 +121,7 @@ TcpSocketState::TcpSocketState(const TcpSocketState& other)
+       m_srtt(other.m_srtt),
+       m_lastRtt(other.m_lastRtt),
+       m_ecnMode(other.m_ecnMode),
++      m_abeState(other.m_enableAbe),
+       m_useEcn(other.m_useEcn),
+       m_ectCodePoint(other.m_ectCodePoint),
+       m_lastAckedSackedBytes(other.m_lastAckedSackedBytes)
+diff --git a/src/internet/model/tcp-socket-state.h b/src/internet/model/tcp-socket-state.h
+index 9655bd9e1..90ad70fc3 100644
+--- a/src/internet/model/tcp-socket-state.h
++++ b/src/internet/model/tcp-socket-state.h
+@@ -146,6 +146,8 @@ class TcpSocketState : public Object
+                      //!< set in TCP header. This state is used for tracing.
+     };
+ 
++    bool m_enableAbe{false};
++
+     /**
+      * @brief Literal names of TCP states for use in log messages
+      */
+-- 
+2.34.1
+

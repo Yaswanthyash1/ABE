@@ -1,0 +1,25 @@
+From 753a6c4882bd81d1954989306c05c0e63fcb2eea Mon Sep 17 00:00:00 2001
+From: Nagabhushanam2005 <thechosentwins2005@gmail.com>
+Date: Thu, 27 Feb 2025 22:36:51 +0530
+Subject: [PATCH 2/6] [TCP]: Fixed the build issue with m_enableAbe
+
+---
+ src/internet/model/tcp-socket-state.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/internet/model/tcp-socket-state.cc b/src/internet/model/tcp-socket-state.cc
+index d628698ca..5e6929473 100644
+--- a/src/internet/model/tcp-socket-state.cc
++++ b/src/internet/model/tcp-socket-state.cc
+@@ -121,7 +121,7 @@ TcpSocketState::TcpSocketState(const TcpSocketState& other)
+       m_srtt(other.m_srtt),
+       m_lastRtt(other.m_lastRtt),
+       m_ecnMode(other.m_ecnMode),
+-      m_abeState(other.m_enableAbe),
++      m_enableAbe(other.m_enableAbe),
+       m_useEcn(other.m_useEcn),
+       m_ectCodePoint(other.m_ectCodePoint),
+       m_lastAckedSackedBytes(other.m_lastAckedSackedBytes)
+-- 
+2.34.1
+

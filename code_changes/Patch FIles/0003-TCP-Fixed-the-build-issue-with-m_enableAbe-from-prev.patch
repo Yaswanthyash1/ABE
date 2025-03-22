@@ -1,0 +1,41 @@
+From b7f30686bdec099a7819558b99ca6d0bb4682edb Mon Sep 17 00:00:00 2001
+From: Nagabhushanam2005 <thechosentwins2005@gmail.com>
+Date: Fri, 28 Feb 2025 20:52:09 +0530
+Subject: [PATCH 3/6] [TCP]: Fixed the build issue with m_enableAbe from
+ previous commit
+
+---
+ src/internet/model/tcp-socket-state.cc | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/internet/model/tcp-socket-state.cc b/src/internet/model/tcp-socket-state.cc
+index 5e6929473..640faf517 100644
+--- a/src/internet/model/tcp-socket-state.cc
++++ b/src/internet/model/tcp-socket-state.cc
+@@ -43,6 +43,11 @@ TcpSocketState::GetTypeId()
+                           BooleanValue(false),
+                           MakeBooleanAccessor(&TcpSocketState::m_paceInitialWindow),
+                           MakeBooleanChecker())
++            .AddAttribute("EnableAbe",
++                          "Enable ABE for ECN",
++                          BooleanValue(false),
++                          MakeBooleanAccessor(&TcpSocketState::m_enableAbe),
++                          MakeBooleanChecker())
+             .AddTraceSource("PacingRate",
+                             "The current TCP pacing rate",
+                             MakeTraceSourceAccessor(&TcpSocketState::m_pacingRate),
+@@ -67,11 +72,6 @@ TcpSocketState::GetTypeId()
+                             "Trace ECN state change of socket",
+                             MakeTraceSourceAccessor(&TcpSocketState::m_ecnState),
+                             "ns3::TracedValueCallback::EcnState")
+-            .AddTraceSource("EnableAbe",
+-                            "Enable ABE for ECN"
+-                            BooleanValue(false),
+-                            MakeBooleanAccessor(&TcpSocketState::m_enableAbe),
+-                            MakeBooleanChecker())
+             .AddTraceSource("HighestSequence",
+                             "Highest sequence number received from peer",
+                             MakeTraceSourceAccessor(&TcpSocketState::m_highTxMark),
+-- 
+2.34.1
+
