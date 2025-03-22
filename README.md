@@ -101,7 +101,7 @@ To enable ABE in your NS-3 simulations, follow these steps:
      
 
 3. *Run Simulation*:
-   - Use the modified TCP congestion control algorithms (CUBIC or Linux Reno) in your simulation script.
+   - Use the modified TCP congestion control algorithms (CUBIC or Linux Reno) in our simulation script.
 
 ---
 
