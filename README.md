@@ -119,6 +119,20 @@ The changes were tested using the following steps:
    - Verified that the changes integrate seamlessly with the existing NS-3 TCP stack.
    - Ensured backward compatibility with existing congestion control algorithms.
 
+To set up and build NS-3 with ABE support, follow these steps:
+
+```sh
+./ns-3 clean
+./ns-3 configure --enable-examples --enable-tests
+./ns-3 build
+```
+
+These commands will:
+
+- **Clean** any previous build files to ensure a fresh compilation.
+- **Configure** NS-3 with support for examples and tests.
+- **Build** the NS-3 simulator with the necessary configurations.
+
 ---
 
 ### *References*
@@ -128,4 +142,3 @@ The changes were tested using the following steps:
 
 ---
 
-This documentation provides a comprehensive overview of the ABE implementation in NS-3. Let me know if you need further details or assistance!
