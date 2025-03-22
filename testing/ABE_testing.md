@@ -73,10 +73,16 @@ set(SOURCES
 ### **3. Build NS-3**
 Rebuild NS-3 to include the new test suite:
 ```bash
+./ns3 configure --enable-tests --enable-examples
+```
+
+### **4. Build NS-3**
+Rebuild NS-3 to include the new test suite:
+```bash
 ./ns3 build
 ```
 
-### **4. Run the Test Suite**
+### **5. Run the Test Suite**
 Execute the test suite using the NS-3 test runner:
 ```bash
 ./test.py --suite=tcp-abe-test
