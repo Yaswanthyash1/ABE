@@ -1,29 +1,29 @@
 # Alternative Backoff with ECN (ABE) for TCP
 
-## 📌 Course: Advanced Computer Networks (CS359)
-## 📑 Assignment #11
+## *Course: Advanced Computer Networks (CS359)*
+## *Assignment #11*
 
 ---
 
-## 🔗 Project Resources
+## Project Resources
 - **[Project Wiki](https://github.com/Yaswanthyash1/Alternative-Backoff-with-ECN-for-TCP/wiki)**
 - **[Report](https://docs.google.com/document/d/1IERWv0bjkAechFp44KMFB_lOYOndRyhEqN7XR7rDeCw/edit?tab=t.0)**
 
 ---
 
-## 📖 Overview
+## Overview
 **Alternative Backoff with ECN (ABE)** is a TCP congestion control mechanism proposed in **[RFC 8511](https://datatracker.ietf.org/doc/html/rfc8511)**. It optimizes congestion window reduction when **Explicit Congestion Notification (ECN)** is used, improving throughput compared to traditional loss-based TCP congestion control. This project implements and evaluates ABE using the **NS-3 network simulator**.
 
 ---
 
-## ❓ Why ABE when ECN already exists?
+## Why ABE when ECN already exists?
 While **ECN** helps reduce packet loss by signaling congestion before queue overflows, **standard TCP still reduces its congestion window aggressively (by 50%)**. 
 
 **ABE improves upon this by reducing the window less aggressively when ECN marks are received, leading to better performance in high-bandwidth networks.**
 
 ---
 
-## ✨ Key Features of ABE
+## Key Features of ABE
 - **Less Aggressive Backoff**: ABE reduces the congestion window by a smaller factor than traditional TCP (e.g., 15% for **CUBIC** and 30% for **Reno**).
 
 - **Improved Throughput**: By reducing the window less aggressively, ABE maintains higher throughput in ECN-enabled networks.
@@ -32,7 +32,7 @@ While **ECN** helps reduce packet loss by signaling congestion before queue over
 
 ---
 
-## 🛠 Implementation in NS-3
+## Implementation in NS-3
 ### **Modified NS-3 Modules**
 1. **tcp-socket-state**:
    - Added `m_enableAbe` boolean flag to enable or disable ABE.
@@ -48,7 +48,7 @@ While **ECN** helps reduce packet loss by signaling congestion before queue over
 
 ---
 
-## 🖥 System Requirements
+## System Requirements
 ### **Machine Type**
 - **OS**: Linux (Ubuntu 20.04 or later recommended)
 - **Processor**: Multi-core CPU (Intel i5 or equivalent)
@@ -81,7 +81,7 @@ sudo ufw logging on
 
 ---
 
-## 🚀 Usage
+## Usage
 ### **Enable ABE in NS-3**
 ```cpp
 Config::SetDefault("ns3::TcpSocketState::EnableAbe", BooleanValue(true));
@@ -102,7 +102,7 @@ Config::SetDefault("ns3::TcpLinuxReno::BetaEcn", DoubleValue(0.7));
 
 ---
 
-## 🧪 Testing and Validation
+## Testing and Validation
 The changes were tested using the following steps:
 1. *Unit Tests*:
    - Verified the behavior of ABE in both CUBIC and Linux Reno.
@@ -133,7 +133,7 @@ To set up and build NS-3 with ABE support, follow these steps:
 
 ---
 
-## 📚 References
+## References
 1. **[RFC 3168: The Addition of Explicit Congestion Notification (ECN) to IP](https://datatracker.ietf.org/doc/html/rfc3168)**
 2. **[RFC 8511: Alternative Backoff with ECN (ABE)](https://datatracker.ietf.org/doc/html/rfc8511)**
 3. **[NS-3 TCP Documentation](https://www.nsnam.org/docs/release/3.36/doxygen/group__tcp.html)**
