@@ -43,30 +43,29 @@ The network topology consists of:
 - *NS-3*: Ensure you have NS-3 installed. This code is compatible with NS-3.36 and later versions.
 - *C++ Compiler*: A modern C++ compiler (e.g., g++ or clang).
 - *Python*: Required for running NS-3 scripts (if applicable).
-- *Filesystem Library*: Requires C++17 or later for std::filesystem.
-
 ---
 
 ## Building and Running the Simulation
 
 1. *Clone the Repository*:
-   bash
-   git clone <repository-url>
-   cd <repository-directory>
-   
+   ```bash
+   git clone git@github.com:Yaswanthyash1/Alternative-Backoff-with-ECN-for-TCP.git
+   cd Alternative-Backoff-with-ECN-for-TCP
+   ```
 
 2. *Build the Simulation*:
-   - Place the code in the scratch directory of your NS-3 installation.
+   - Place the simulation code in the scratch directory of the NS-3 repo by checking out to tcp_linux_reno_update branch.
    - Build the simulation using the following command:
-     bash
-     ./waf build
+     ```bash
+     ./ns3 configure --enable-examples --enable-tests ./ns3 build
+     ```
      
 
-3. *Run the Simulation*:
+4. *Run the Simulation*:
    - Execute the simulation with default parameters:
-     bash
-     ./waf --run scratch/<simulation-file-name>
-     
+     ```bash
+     ./ns3 run <simulation-file-name>
+     ```
    - To customize parameters, use command-line arguments (see [Configuration Options](#configuration-options)).
 
 ---
@@ -87,9 +86,9 @@ The simulation can be configured using the following command-line arguments:
 | --QW            | Weight for queue size in RED.                                               | 0.5               |
 
 Example:
-bash
-./waf --run scratch/<simulation-file-name> --tcpTypeId=TcpNewReno --stopTime=200 --useEcn=false
-
+```bash
+./ns3 run <sim-name> --tcpTypeId=TcpNewReno --stopTime=200 --useEcn=false
+```
 
 ---
 
