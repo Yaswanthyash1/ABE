@@ -17,175 +17,250 @@
  * the NS-3 testing framework.
  */
 
+#include "ns3/test.h"
+#include "ns3/log.h"
+#include "ns3/tcp-socket-state.h"
+#include "ns3/tcp-cubic.h"
+#include "ns3/tcp-linux-reno.h"
 
- #include "ns3/test.h"
- #include "ns3/log.h"
- #include "ns3/tcp-socket-state.h"
- #include "ns3/tcp-cubic.h"
- #include "ns3/tcp-linux-reno.h"
- 
- namespace ns3
- {
- 
- NS_LOG_COMPONENT_DEFINE("TcpAbeTestSuite");
- 
- /**
-  * Test case to verify enabling and disabling ABE (Alternative Backoff with ECN).
-  */
- class TcpAbeToggleTest : public TestCase
- {
- public:
-     TcpAbeToggleTest() : TestCase("Test enabling and disabling ABE") {}
- 
-     void DoRun() override
-     {
-         Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
- 
-         // Enable ABE and verify
-         state->m_enableAbe = true;
-         NS_TEST_EXPECT_MSG_EQ(state->m_enableAbe, true, "ABE should be enabled");
- 
-         // Disable ABE and verify
-         state->m_enableAbe = false;
-         NS_TEST_EXPECT_MSG_EQ(state->m_enableAbe, false, "ABE should be disabled");
-     }
- };
- 
- /**
-  * Test case for TCP CUBIC with ABE.
-  *
-  * This test verifies the behavior of CUBIC congestion control with and without ABE.
-  */
- class TcpCubicAbeTest : public TestCase
- {
- private:
-     // Variables for managing congestion control behavior 
-     bool m_enableAbe;          
-     uint32_t m_segmentSize;    
-     uint32_t m_initialCwnd;    
-     uint32_t m_expectedCwnd;  
-     uint32_t m_bytesInFlight;  
- 
- public:
-     TcpCubicAbeTest(
-         bool enableAbe,
-         uint32_t segmentSize,
-         uint32_t initialCwnd,
-         uint32_t expectedCwnd,
-         uint32_t bytesInFlight,
-         const std::string& desc)
-         : TestCase(desc),
-           m_enableAbe(enableAbe),
-           m_segmentSize(segmentSize),
-           m_initialCwnd(initialCwnd),
-           m_expectedCwnd(expectedCwnd),
-           m_bytesInFlight(bytesInFlight)
-     {
-     }
- 
-     void DoRun() override
-     {
-         Ptr<TcpCubic> cubic = CreateObject<TcpCubic>();
-         Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
- 
-         // Configure TCP state
-         state->m_enableAbe = m_enableAbe;
-         state->m_ecnState = TcpSocketState::ECN_ECE_RCVD;
-         state->m_segmentSize = m_segmentSize;
-         state->m_cWnd = m_initialCwnd;
-         state->m_bytesInFlight = m_bytesInFlight;
- 
-         // Update congestion window
-         state->m_cWnd = cubic->GetSsThresh(state, m_bytesInFlight);
- 
-         // Verify the congestion window reduction
-         NS_TEST_EXPECT_MSG_EQ(
-             state->m_cWnd, m_expectedCwnd,
-             "CUBIC congestion control " << (m_enableAbe ? "with ABE" : "without ABE") <<
-             " did not apply the correct backoff factor. Expected CWND: " << m_expectedCwnd <<
-             ", Actual CWND: " << state->m_cWnd);
-     }
- };
- 
- /**
-  * Test case for TCP Linux Reno with ABE.
-  *
-  * This test verifies the behavior of Linux Reno congestion control with and without ABE.
-  */
- class TcpLinuxRenoAbeTest : public TestCase
- {
- private:
-     // Variables for managing congestion control behavior 
-     bool m_enableAbe;          
-     uint32_t m_initialCwnd;    
-     uint32_t m_expectedCwnd;   
-     uint32_t m_bytesInFlight; 
- 
- public:
-     TcpLinuxRenoAbeTest(
-         bool enableAbe,
-         uint32_t initialCwnd,
-         uint32_t expectedCwnd,
-         uint32_t bytesInFlight,
-         const std::string& desc)
-         : TestCase(desc),
-           m_enableAbe(enableAbe),
-           m_initialCwnd(initialCwnd),
-           m_expectedCwnd(expectedCwnd),
-           m_bytesInFlight(bytesInFlight)
-     {
-     }
- 
-     void DoRun() override
-     {
-         Ptr<TcpLinuxReno> reno = CreateObject<TcpLinuxReno>();
-         Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
- 
-         // Configure TCP state
-         state->m_enableAbe = m_enableAbe;
-         state->m_ecnState = TcpSocketState::ECN_ECE_RCVD;
-         state->m_cWnd = m_initialCwnd;
-         state->m_bytesInFlight = m_bytesInFlight;
- 
-         // Update congestion window
-         state->m_cWnd = reno->GetSsThresh(state, m_bytesInFlight);
- 
-         // Verify the congestion window reduction
-         NS_TEST_EXPECT_MSG_EQ(
-             state->m_cWnd, m_expectedCwnd,
-             "Linux Reno congestion control " << (m_enableAbe ? "with ABE" : "without ABE") <<
-             " did not apply the correct backoff factor. Expected CWND: " << m_expectedCwnd <<
-             ", Actual CWND: " << state->m_cWnd);
-     }
- };
- 
- /**
-  * Test suite for ABE (Alternative Backoff with ECN).
-  */
- class TcpAbeTestSuite : public TestSuite
- {
- public:
-     TcpAbeTestSuite()
-         : TestSuite("tcp-abe-test", Type::UNIT)
-     {
-         // Add test cases
-         AddTestCase(new TcpAbeToggleTest, TestCase::Duration::QUICK);
- 
-         // CUBIC tests
-         AddTestCase(new TcpCubicAbeTest(
-             false, 1, 1000, 700, 100, "Test CUBIC without ABE"), TestCase::Duration::QUICK);
-         AddTestCase(new TcpCubicAbeTest(
-             true, 1, 1000, 850, 100, "Test CUBIC with ABE"), TestCase::Duration::QUICK);
- 
-         // Linux Reno tests
-         AddTestCase(new TcpLinuxRenoAbeTest(
-             false, 1000, 500, 100, "Test Linux Reno without ABE"), TestCase::Duration::QUICK);
-         AddTestCase(new TcpLinuxRenoAbeTest(
-             true, 1000, 700, 100, "Test Linux Reno with ABE"), TestCase::Duration::QUICK);
-     }
- };
- 
- // Register the test suite
- static TcpAbeTestSuite g_tcpAbeTestSuite;
- 
- } // namespace ns3
+
+namespace ns3
+{
+NS_LOG_COMPONENT_DEFINE("TcpAbeTestSuite");
+
+/**
+ * @ingroup internet-test
+ *
+ * @brief checks if users are able to enable ABE or not .
+ *        Also checks if the congestion window is getting reduced appropriately. 
+ *
+ **/
+
+/** 
+ * Test case to check enabling/disabling ABE
+ */
+class TcpAbeToggleTest : public TestCase
+{
+
+    public:
+        /**
+        * @brief Constructor
+        *
+        */
+        TcpAbeToggleTest() : TestCase("Test enabling and disabling ABE") {}
+       
+        void DoRun() override
+        {
+            Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+         
+            //Enable ABE     
+            state->m_enableAbe=true;
+            NS_TEST_EXPECT_MSG_EQ(state->m_enableAbe, true, "ABE should be enabled");
+            
+            //Disable ABE
+            state->m_enableAbe=false;
+            NS_TEST_EXPECT_MSG_EQ(state->m_enableAbe, false, "ABE should be disabled");
+        }
+};
+
+/**
+ * Test case for TCP CUBIC with ABE
+ */
+class TcpCubicAbeTest : public TestCase
+{
+    private:
+        uint32_t testCase;//!<Test case number 
+        uint32_t m_segmentSize;//!<Segment size
+        uint32_t m_initialCwnd;//!<Initial congestion window
+        uint32_t m_expectedCwnd;//!<Expected congestion window after applying Beta/BetaEcn
+        uint32_t m_bytesInFlight;//!<Bytes in flight
+    
+    public:
+        /**
+        * @brief Constructor
+        *
+        * @param testcase test case number
+        * @param desc Description about congestion window reduction usng CUBIC congestion control with/without ABE
+        */
+        TcpCubicAbeTest(
+            uint32_t testCase,
+            uint32_t segmentSize,
+            uint32_t initialCwnd,
+            uint32_t expectedCwnd,
+            uint32_t bytesInFlight,
+            const std::string& desc) : 
+                TestCase(desc),
+                testCase(testCase),
+                m_segmentSize(segmentSize),
+                m_initialCwnd(initialCwnd),
+                m_expectedCwnd(expectedCwnd),
+                m_bytesInFlight(bytesInFlight)
+        {}
+
+    void DoRun() override
+        {
+            if(testCase==1)
+            {
+                Ptr<TcpCubic> cubic = CreateObject<TcpCubic>();
+                Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+                
+                //Configure TCP state 
+                state->m_enableAbe=true;
+                state->m_ecnState=TcpSocketState::ECN_ECE_RCVD;
+                state->m_segmentSize=m_segmentSize;
+                state->m_cWnd=m_initialCwnd;
+                state->m_bytesInFlight=m_bytesInFlight;
+                
+                //update cwnd
+                state->m_cWnd=cubic->GetSsThresh(state, m_bytesInFlight);
+                
+                NS_TEST_EXPECT_MSG_EQ(state->m_cWnd,
+                    m_expectedCwnd,
+                    "CUBIC congestion control with ABE should apply BetaEcn correctly");
+            }
+            else if(testCase==0){
+                //Test CUBIC without ABE                 
+                Ptr<TcpCubic> cubic = CreateObject<TcpCubic>();
+                Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+               
+                //Configure TCP state
+                state->m_ecnState=TcpSocketState::ECN_ECE_RCVD;
+                state->m_segmentSize=m_segmentSize;
+                state->m_cWnd=m_initialCwnd;
+                state->m_bytesInFlight=m_bytesInFlight;
+                
+                //update cwnd
+                state->m_cWnd=cubic->GetSsThresh(state, m_bytesInFlight);
+                
+                NS_TEST_EXPECT_MSG_EQ(state->m_cWnd,
+                    m_expectedCwnd, 
+                    "CUBIC congestion control should apply Beta correctly");
+            }
+            else{
+
+                NS_TEST_EXPECT_MSG_EQ(0,
+                    1,
+                    "Invalid test case");
+            }
+        }
+};
+
+/**
+ * Test case for TCP Linux Reno with ABE
+ */
+class TcpLinuxRenoAbeTest : public TestCase
+{
+    private:
+        uint32_t testCase;//!<Test case number
+        uint32_t m_initialCwnd;//!<Initial congestion window
+        uint32_t m_expectedCwnd;//!<Expected congestion window after applying Beta/BetaEcn
+        uint32_t m_bytesInFlight;//!<Bytes in flight
+        
+    public:
+        /**
+        * @brief Constructor
+        *
+        * @param testcase test case number
+        * @param desc Description about congestion window reduction while using Linux Reno congestion control with/without ABE
+        */
+        TcpLinuxRenoAbeTest(
+            uint32_t testCase,
+            uint32_t initialCwnd,
+            uint32_t expectedCwnd,
+            uint32_t bytesInFlight,
+            const std::string& desc) : 
+                TestCase(desc),
+                testCase(testCase),
+                m_initialCwnd(initialCwnd),
+                m_expectedCwnd(expectedCwnd),
+                m_bytesInFlight(bytesInFlight)
+            {}
+
+        void DoRun() override
+        {
+            if(testCase==1){
+
+                Ptr<TcpLinuxReno> cubic = CreateObject<TcpLinuxReno>();
+                Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+                
+                //Configure TCP state
+                state->m_enableAbe=true;
+                state->m_ecnState=TcpSocketState::ECN_ECE_RCVD;
+                state->m_cWnd=m_initialCwnd;
+                state->m_bytesInFlight=m_bytesInFlight;
+                //update cwnd
+                state->m_cWnd=cubic->GetSsThresh(state, m_bytesInFlight);
+                NS_TEST_EXPECT_MSG_EQ(state->m_cWnd, m_expectedCwnd, "RENO Congestion Control with ABE should apply BetaEcn correctly");
+            }
+            else if(testCase==0)
+            {
+                Ptr<TcpLinuxReno> cubic = CreateObject<TcpLinuxReno>();
+                Ptr<TcpSocketState> state = CreateObject<TcpSocketState>();
+                
+                //Configure TCP state
+                state->m_ecnState=TcpSocketState::ECN_ECE_RCVD;
+                state->m_cWnd=m_initialCwnd;
+                state->m_bytesInFlight=m_bytesInFlight;
+                //update cwnd
+                state->m_cWnd=cubic->GetSsThresh(state, m_bytesInFlight);
+                
+                NS_TEST_EXPECT_MSG_EQ(state->m_cWnd,
+                    m_expectedCwnd,
+                    "RENO congestion control should apply Beta correctly");
+            }
+            else{
+                
+                NS_TEST_EXPECT_MSG_EQ(0,
+                    1,
+                    "Invalid test case");
+            }
+        }
+};
+
+/**
+ * Test suite for ABE
+ */
+class TcpAbeTestSuite : public TestSuite
+{
+public:
+    TcpAbeTestSuite() : TestSuite("tcp-abe-test", Type::UNIT)
+    {
+        AddTestCase(new TcpAbeToggleTest,
+                    TestCase::Duration::QUICK);
+        AddTestCase(new TcpCubicAbeTest(
+                                        0,
+                                        1,
+                                        1000,
+                                        700,
+                                        100,
+                                        "Test CUBIC without ABE"),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new TcpCubicAbeTest(
+                                        1,
+                                        1,
+                                        1000,
+                                        850,
+                                        100,
+                                        "Test CUBIC ABE with BetaEcn"),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new TcpLinuxRenoAbeTest(
+                                            0,
+                                            1000,
+                                            500,
+                                            100,
+                                            "Test Linux Reno without ABE"),
+                        TestCase::Duration::QUICK);
+        AddTestCase(new TcpLinuxRenoAbeTest(
+                                            1,
+                                            1000,
+                                            700,
+                                            100,
+                                            "Test Linux Reno ABE with BetaEcn"),
+                        TestCase::Duration::QUICK);
+    }
+};
+
+// Register test suite
+static TcpAbeTestSuite g_tcpAbeTestSuite;
+
+}
